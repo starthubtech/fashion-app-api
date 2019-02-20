@@ -60,33 +60,19 @@ class UserController extends Controller
 
     {
 
-        $validator = Validator::make($request->all(), [
+    	$data = $request->validate([
+			'name' => 'required',
+			'email' => 'required|email',
+			'password' => 'required',
+			'confirm_password' => 'required|same:password',
+    	]);
 
-            'name' => 'required',
+    	//We don't want to insert confirm_password
+    	unset($data['confirm_password']);
 
-            'email' => 'required|email',
+        $user = User::create($data);
 
-            'password' => 'required',
-
-            'confirm_password' => 'required|same:password',
-
-        ]);
-
-
-        if ($validator->fails()) {
-
-            return response()->json(['error'=>$validator->errors()], 401);            
-
-        }
-
-
-        $input = $request->all();
-
-        $input['password'] = bcrypt($input['password']);
-
-        $user = User::create($input);
-
-        $success['token'] =  $user->createToken('MyApp')->accessToken;
+        $success['token'] =  $user->createToken(config('app.name'))->accessToken;
 
         $success['name'] =  $user->name;
 
