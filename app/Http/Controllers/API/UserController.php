@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\User;
 
 use Illuminate\Support\Facades\Auth;
+use  Illuminate\Support\Facades\Validator;
 
 
 class UserController extends Controller
@@ -60,12 +61,28 @@ class UserController extends Controller
 
     {
 
-    	$data = $request->validate([
-			'name' => 'required',
-			'email' => 'required|email',
-			'password' => 'required',
-			'confirm_password' => 'required|same:password',
-    	]);
+        $validate = Validator::make($request->post(), [
+            'name' => 'required',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required',
+            'confirm_password' => 'required|same:password',
+        ]);
+
+        if($validate->fails()) {
+            return response()->json([
+                'errors' => $validate->errors(),
+            ], 400);
+        }
+
+        $data = $request->post();
+
+        $data['password'] = bcrypt($data['password']);
+        
+        //we'll find a way to figure out whether
+        //the request is from an android or web(vendor) user
+        //then we choose the role id based on that
+
+        // $data['role_id'] = 2;
 
     	//We don't want to insert confirm_password
     	unset($data['confirm_password']);
