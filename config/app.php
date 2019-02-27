@@ -15,6 +15,9 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    //Log
+    'log’=>’errorlog',
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment
